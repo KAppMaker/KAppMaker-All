@@ -4,15 +4,15 @@ Thank you for your interest in contributing to Koko! We welcome contributions fr
 
 ## How to Contribute
 
-Currently, since this is a private repository, you will contribute by creating a branch directly within this repo. Once this repository becomes public, we will shift to a fork-and-pull-request model.
+Contributions to Koko follow the standard Fork and Pull Request workflow.
 
-### Contribution Workflow (Internal/Branching)
+### Contribution Workflow
 
-1. **Create a Branch**: Create a new branch off of `initial_version` (or the default branch) for your feature or fix. Use a descriptive name, categorized by the type of work (e.g., `feature/`, `bugfix/`, `docs/`).
+1. **Fork & Create a Branch**: Fork the repository to your GitHub account, clone it locally, and create a new branch off of `main` for your feature or fix. Use a descriptive name (e.g., `feature/`, `bugfix/`, `docs/`).
    ```bash
-   git checkout initial_version
-   git pull origin initial_version
-   git checkout -b feature/my-new-feature
+   git checkout main
+   git pull upstream main
+   git checkout -b docs/fix-contributing-guide
    ```
 
 2. **Make Changes**: Implement your changes. Ensure your code follows the project's style and architectural conventions.
@@ -35,12 +35,12 @@ Currently, since this is a private repository, you will contribute by creating a
 4. **Commit**: Commit your changes with clear, descriptive messages.
    ```bash
    git add .
-   git commit -m "feat(ui): add new setting toggle for animations"
+   git commit -m "docs: update contributing workflow for public repo"
    ```
 
-5. **Push and Open a Pull Request**: Push your branch to the remote repository and open a Pull Request (PR) against the default branch (`initial_version`).
+5. **Push and Open a Pull Request**: Push your branch to your forked repository and open a Pull Request (PR) against the `main` branch of `KotlinFoundation/kmp-contest-starter-kit`.
    ```bash
-   git push origin feature/my-new-feature
+   git push -u origin docs/fix-contributing-guide
    ```
    Provide a clear description of your changes in the PR body, including what problem it solves or what feature it adds.
 

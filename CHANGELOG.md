@@ -12,6 +12,46 @@ Entry format — one bullet per merged PR, tagged by scope:
 Entries start with the first template change after the sync tooling landed — group them under a
 `## <year>-<month>-<date>` heading, newest first.
 
+## 2026-08-16
+
+- `[app]` **iOS publishing works without a Mac** (#48): the iOS publish workflow had never run on a
+  generated app — it wanted a hand-exported `.p12`, which needs the Mac the workflow exists to avoid.
+  Signing now goes through fastlane `match`, which creates the certificate on the runner from the App
+  Store Connect API key and stores it in a **private certificates repo shared across your Apple
+  account**. It is a separate repo on purpose: a distribution certificate belongs to the account and
+  Apple issues at most two, so storing them per app exhausts the account almost immediately. Releases
+  run `match` read-only so no build can mint one. Archive and export also disagreed about signing
+  style, and signing settings had to move per target because Swift Package dependencies reject a
+  provisioning profile; the workflow now drives the project's own Fastfile instead of a parallel
+  xcodebuild. Manual: set `APPSTORE_KEY_ID`, `APPSTORE_ISSUER_ID`, `APPSTORE_PRIVATE_KEY` (the
+  **base64** of the `.p8`, not its raw contents), `MATCH_PASSWORD`, `MATCH_GIT_URL` and
+  `MATCH_GIT_BASIC_AUTHORIZATION` (base64 of `x-access-token:<PAT>` with access to the certs repo).
+  `IOS_APP_CERTIFICATE_P12_BASE64`, `APPSTORE_TEAM_ID` and the provisioning-profile UUIDs are no
+  longer used — delete them.
+- `[app]` **Android releases and PR checks write every build key** (#48): both workflows wrote the same
+  stale three-key `local.properties` block, two of which the build no longer reads, so Play Store
+  releases shipped with placeholder sign-in, ads, AI and paywall exactly like iOS did. All three
+  workflows now derive the key list from `MobileApp/local.properties.example`, so adding a key there
+  needs no workflow edit. Manual: set a repo secret for each key you use — the release workflows warn
+  about any that are missing.
+- `[docs]` **Publishing docs match the new secrets** (#48): `setup-signing`, the `publishing` guide and
+  its progress template, the docs-site CI page and the iOS production page all still described the
+  hand-exported `.p12` flow and two RevenueCat keys the build no longer reads. They now list the six
+  iOS secrets that exist and where each value comes from, explain why the certificates repo is shared
+  across the account, and state the rule the workflows rely on: every key in
+  `local.properties.example` needs a repo secret of the same name.
+- `[app]` **The certificate-store bootstrap is actually reachable** (#49): populating an empty
+  certificates repo needs `match` to run with write access exactly once, and that escape hatch never
+  worked. The workflow did not forward `MATCH_READONLY` into the build step, and the lane read it
+  *after* fastlane's `setup_ci`, which sets `MATCH_READONLY=true` itself — so the log printed `false`
+  while match still refused with "cannot create a new one because you enabled `readonly`". The value
+  is now read before `setup_ci`, passed to match explicitly, and sourced from a repository
+  **variable**, since a secret valued `false` masks that word throughout the log. Manual: bootstrap an
+  empty certs repo with `gh variable set MATCH_READONLY --body false`, run the release once, then
+  `gh variable delete MATCH_READONLY`. `match` is also pinned to the `main` branch of the certs repo:
+  it defaults to `master`, which would leave the certificate on a second branch of a repo whose
+  default is `main`.
+
 ## 2026-08-14
 
 - `[app]` **Aligned Firebase library versions** (#47): KMPAuth 3.0.3 → 3.0.5, KMPNotifier 2.0.0 → 2.0.1,

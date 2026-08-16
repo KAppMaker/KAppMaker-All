@@ -239,8 +239,6 @@ platform :ios do
     setup_ci if ENV["CI"]
 
 
-    # readonly:false so the FIRST run can create and store the certificate. Later
-    # runs find it already there and reuse it.
     # READONLY BY DEFAULT — this protects a scarce, account-wide resource.
     #
     # Apple issues at most TWO Apple Distribution certificates per developer
